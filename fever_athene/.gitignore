@@ -1,0 +1,13 @@
+.idea/
+.vscode/
+.DS_Store
+__pycache__
+.ipynb_checkpoints/
+/data/
+/features/
+/logs/
+/models/
+/model/
+/src/model/
+/logdir/
+*.log

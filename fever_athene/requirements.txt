@@ -1,0 +1,12 @@
+Cython
+cysignals==1.7.2
+thinc==7.0.4
+fever-drqa
+fever-scorer
+spacy
+allennlp
+wikipedia
+pyfasttext
+gensim
+tensorflow==1.9.0
+tensorflow-gpu==1.9.0

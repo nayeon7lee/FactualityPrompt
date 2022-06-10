@@ -1,0 +1,49 @@
+{
+    "BASE_DIR": ".",
+    "SUBMISSION_FILE_NAME": "predictions.jsonl",
+    "model_name": "no_attention_glove",
+    "glove_path": "./data/glove/glove.6B.300d.txt.gz",
+    "fasttext_path": "./data/fasttext/wiki.en.bin",
+    "model_folder": "model/no_attention_glove",
+    "ckpt_folder": "model/no_attention_glove/rte_checkpoints",
+    "db_path": "./data/fever/fever.db",
+    "dataset_folder": "./data/fever",
+    "training_set_file": "./data/fever/train.p7.s5.jsonl",
+    "dev_set_file": "./data/fever/dev.p7.s5.jsonl",
+    "test_set_file": "./data/fever/test.p7.s5.jsonl",
+    "submission_folder": "submission_no_attention_glove",
+    "submission_file": "submission_no_attention_glove/predictions.jsonl",
+    "estimator_name": "esim_glove_no_attention",
+    "pickle_name": "esim.p",
+    "esim_hyper_param": {
+        "num_neurons": [
+            250,
+            180,
+            180,
+            900,
+            550
+        ],
+        "lr": 0.002,
+        "dropout": 0,
+        "batch_size": 64,
+        "pos_weight": [
+            0.408658712,
+            1.942468514,
+            1.540587559
+        ],
+        "max_checks_no_progress": 5,
+        "trainable": false,
+        "show_progress": 1,
+        "n_outputs": 3,
+        "lstm_layers": 1,
+        "optimizer": "adam",
+        "num_epoch": 100,
+        "activation": "relu",
+        "initializer": "he"
+    },
+    "max_sentences": 5,
+    "max_sentence_size": 50,
+    "n_jobs_ensemble": 3,
+    "seed": 55,
+    "name": "claim_verification_esim"
+}
