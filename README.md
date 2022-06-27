@@ -36,3 +36,6 @@ If you use our resource, please cite our work with the bibtex listed below:
 ```
   PYTHONPATH=fever_athene python3 fever_athene/scripts/build_db_kilt.py data/knowledgesource.json data/kilt_db.db
 ```
+This script will create kilt_db.db into `data` directory. 
+
+## 2. Run evaluation script
