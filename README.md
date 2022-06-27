@@ -23,7 +23,16 @@ If you use our resource, please cite our work with the bibtex listed below:
 </pre>
 
 ## Code Overview
-* `fever_athene`: contains fact-checking pipeline code (Wiki document retriever, Wiki sentence selector, etc) from [UKPLab/fever-2018-team-athene github](UKPLab/fever-2018-team-athene). We utilize and build on top of their Wiki document retriever in our work. (Refer to their github for citation details)
+* `fever_athene`: contains fact-checking pipeline code (Wiki document retriever, Wiki sentence selector, etc) from UKPLab/fever-2018-team-athene [github](UKPLab/fever-2018-team-athene). We utilize and build on top of their Wiki document retriever in our work. (Refer to their github for citation details)
 * `metrics`: contains generation evaluation metrics used nucleus sampling [github](https://github.com/ari-holtzman/degen) from Holtman et al. 
 * `prompts`: contains our FactualityPrompt testset utilized in our paper.
 * `src`: our code that leverages the above resources to evaluate the factualtiy of LM generation.
+
+## 1. Setup 
+1. Install dependencies by running `pip install -r requirements.txt`
+2. Download Wikipedia processed dump (knowledgesource.json) from [here](https://github.com/facebookresearch/KILT#kilt-knowledge-source) into `data` directory
+3. Create the DB file from Wikipedia dump by running:
+
+```
+  PYTHONPATH=fever_athene python3 fever_athene/scripts/build_db_kilt.py data/knowledgesource.json data/kilt_db.db
+```
