@@ -30,7 +30,6 @@ If you use our resource, please cite our work with the bibtex listed below:
 ## 1. Setup 
 1. Install dependencies by running `pip install -r requirements.txt`
 2. Download Wikipedia processed dump (knowledgesource.json) from [KILT-github](https://github.com/facebookresearch/KILT#kilt-knowledge-source) into `data` directory (Refer to their repository for citation details)
-
 ```
   mkdir data
   cd data
@@ -43,10 +42,12 @@ If you use our resource, please cite our work with the bibtex listed below:
 ```
 This script will create kilt_db.db into `data` directory. 
 
+4. Configure `src/const.py` file. 
+
 ## 2. Run evaluation script
 Running any of the scripts below will save corresponding metric results into a file named `$GEN_TO_EVALUATE_NAME_results.jsonl` (`$GEN_TO_EVALUATE_NAME` refers to the file containing generations that you are trying to evaluate).
 
-#### Factuality Metric (Hallucinated NE Error, Entailment Ratio)
+### Factuality Metric (Hallucinated NE Error, Entailment Ratio)
 
 ```
 for PROMPT_TYPE in factual nonfactual
@@ -56,7 +57,7 @@ do
 done
 ```
 
-#### Repetition
+### Repetition
 
 ```
 for PROMPT_TYPE in factual nonfactual
@@ -66,9 +67,9 @@ do
 done
 ``` 
 
-#### Diversity
+### Diversity
 
-1. First obtain multiple generation files from your LM with different seed. In our paper, we used 10 random seeds, but you can use your own choice of seed count.**If you are evaluating greedy, there is NO NEED to generate multiple seed, because all seed will result in same generation. Simply use 1 generation file.**
+1. First obtain multiple generation files from your LM with different seed. In our paper, we used 10 random seeds, but you can use your own choice of seed count. **If you are evaluating greedy, there is NO NEED to generate multiple seed, because all seed will result in same generation. Simply use 1 generation file.**
 
 2. Then run the below script:
 ```
@@ -84,8 +85,33 @@ Illustration of `FILE_TEMPLATE`:
 
 
 ## 3. Replicating our work with [Megatron-LM](https://github.com/NVIDIA/Megatron-LM)
-1. Factual Nucleus Decoding: provide link to the implementation in Megatron-LM repo
-2. How to 1) preprocess the training corpus, 2) incorporate SC-loss into Megatron-LM
+#### Factual Nucleus Decoding
+Refer to this [link](www.google.com) for nucleus sampling implementation in Megatron-LM repository.
+
+#### Sentence Completition Loss
+**Step 1. Prepare the training corpus:**
+
+```
+  python preprocess_data_megatron_lm.py \
+      --input $CORPUS_PATH \
+      --output-prefix $OUTPUT_FILE_PREFIX \
+      --vocab-file gpt2-vocab.json \
+      --merge-file gpt2-merges.txt \
+      --tokenizer-type GPT2BPETokenizer \
+      --append-eod  --workers 20 \
+      --mask_type $MASKING_CHOICE_FOR_SC_LOSS_PIVOT
+```
+
+Possible choice for `$MASKING_CHOICE_FOR_SC_LOSS_PIVOT`:
+* v2_all_after_ROOT: ROOT Pivot 
+* v3_all_after_half: Half Pivot
+* v5_RANDOM_Mask: Random pivot
+
+**Step 2: Modify the Megatron-LM code to incorporate SC-loss masking**
+TODO
+
+**Step 3: Use the provided script in Megtraon-LM repository (<https://github.com/NVIDIA/Megatron-LM#gpt-pretraining>) to train the Megatron-GPT with SC-loss**
+
 
 ## 4. Proposed methodology implementation in [Hugginface (HF)](https://github.com/huggingface/transformers)
 1. Factual Nucleus Decoding with HF - https://github.com/huggingface/transformers/blob/main/examples/legacy/run_language_modeling.py 
