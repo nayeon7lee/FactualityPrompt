@@ -62,7 +62,7 @@ done
 for PROMPT_TYPE in factual nonfactual
 do
     GEN_TO_EVALUATE_NAME=${PROMPT_TYPE}-CUSTOM-GEN-NAME.jsonl
-    python metrics/repetition.py ${GEN_TO_EVALUATE_NAME}  --final
+    python src/repetition.py ${GEN_TO_EVALUATE_NAME}  --final
 done
 ``` 
 
@@ -75,7 +75,7 @@ done
 GEN_DIR=directory-containing-multi-seed-generation-files
 
 FILE_TEMPLATE=shared-string-between-multiple-seed-generation
-python metrics/distinct_n.py --gen_dir ${GEN_DIR} --file_template ${FILE_TEMPLATE} --number_of_seeds 10
+python src/distinct_n.py --gen_dir ${GEN_DIR} --file_template ${FILE_TEMPLATE} --number_of_seeds 10
 ```
 
 Illustration of `FILE_TEMPLATE`:
