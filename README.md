@@ -103,9 +103,9 @@ Refer to this [link](www.google.com) for nucleus sampling implementation in Mega
 ```
 
 Possible choice for `$MASKING_CHOICE_FOR_SC_LOSS_PIVOT`:
-* v2_all_after_ROOT: ROOT Pivot 
-* v3_all_after_half: Half Pivot
-* v5_RANDOM_Mask: Random pivot
+* `v2_all_after_ROOT`: ROOT Pivot 
+* `v3_all_after_half`: Half Pivot
+* `v5_RANDOM_Mask`: Random pivot
 
 **Step 2: Modify the Megatron-LM code to incorporate SC-loss masking**
 
