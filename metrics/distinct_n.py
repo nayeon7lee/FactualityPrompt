@@ -31,6 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--gen_dir", type=str)
     parser.add_argument("--file_template", type=str)
+    parser.add_argument("--number_of_seeds", type=int, default=10)
     # parser.add_argument("N", type=int, help="N in distinct-N metric")
     parser.add_argument("--numbers-only", action="store_true")
     return parser.parse_args()
@@ -131,45 +132,6 @@ def distinct_n(n, factual_examples, f_name_template):
 
 #     return n_distinct, n_total
 
-def main_dev():
-    args = parse_args()
-
-    dir = args.gen_dir
-    f_template = args.file_template
-
-    target_files = [f for f in listdir(dir) if isfile(join(dir, f)) and f_template in f]
-
-    factual_examples = []
-    for target_file in target_files:
-        # print("{}/{}".format(dir, target_file))
-        with open("{}/{}".format(dir, target_file), "r") as fin:
-            # for l in fin:
-            #     first_line = json.loads(l.strip())
-            #     print(sent_tokenize(first_line['text'])[0] )
-            #     break
-            factual_examples.extend([json.loads(l.strip()) for l in fin])
-
-
-    out_log_path = "distinct_n.log"
-    with open(out_log_path, "a") as outfile:
-        outfile.write(f"{f_template}")
-
-    for n in [4, 3, 2]:
-        # n_distinct, n_total = distinct_n(factual_examples, args.N)
-        n_distinct, n_total = distinct_n(factual_examples, n, f_template)
-
-        if 'greedy' in f_template:
-            n_total = n_total * 15 # greedy will always generate same. So test on just one generation file, and multiply by # of seed used (in our case, 15)
-
-        print("N:{}, N_distinct:{}, N_total:{}, n_distinct/N_total:{}".format(n, n_distinct, n_total, n_distinct/n_total))
-
-        with open(out_log_path, "a") as outfile:
-            # outfile.write(f"{n_distinct}, {n_total}, {n_distinct/n_total}")
-            outfile.write(", {}, {}, {}".format(n_distinct, n_total, n_distinct/n_total))
-
-    with open(out_log_path, "a") as outfile:
-        outfile.write("\n")
-
 
 def main():
     args = parse_args()
@@ -182,71 +144,68 @@ def main():
     factual_target_files = [f for f in listdir(dir) if isfile(join(dir, f)) and f_template in f and 'nonfactual' not in f]
     nonfactual_target_files = [f for f in listdir(dir) if isfile(join(dir, f)) and f_template in f and 'nonfactual' in f]
 
-    print(len(factual_target_files))
-    print(len(nonfactual_target_files))
-
-    
-    assert len(factual_target_files) >= 10
-    assert len(nonfactual_target_files) >= 10
-
-    factual_target_files = factual_target_files[:10]
-    nonfactual_target_files = nonfactual_target_files[:10]
-
+    if 'greedy' not in f_template:
+        assert len(factual_target_files) == args.number_of_seeds
+        assert len(nonfactual_target_files) == args.number_of_seeds
 
     factual_examples = []
     for target_file in factual_target_files:
-        # print("{}/{}".format(dir, target_file))
         with open("{}/{}".format(dir, target_file), "r") as fin:
             factual_examples.extend([json.loads(l.strip()) for l in fin])
     
 
     nonfactual_examples = []
     for target_file in nonfactual_target_files:
-        # print("{}/{}".format(dir, target_file))
         with open("{}/{}".format(dir, target_file), "r") as fin:
             nonfactual_examples.extend([json.loads(l.strip()) for l in fin])
 
 
-    # print(len(factual_examples), len(nonfactual_examples))
-    # assert len(factual_examples) == 80000
-    # assert len(nonfactual_examples) == 80000
-
-    
-    out_log_path = "/home/nayeonl/megatron-lm/final_distinct_n.log"
-    with open(out_log_path, "a") as outfile:
-        outfile.write(f"{f_template}")
-
     # factual examples
     workers = multiprocessing.Pool(4)
 
+    # factual prompts
     factual_res_dict = {}
-    for (_n_distinct, _n_total, _n) in workers.imap_unordered(distinct_n_wrapper, zip([1,2,3,4], itertools.repeat(factual_examples), itertools.repeat(f_template))):
+    for (_n_distinct, _n_total, _n) in workers.imap_unordered(distinct_n_wrapper, zip([2,3,4], itertools.repeat(factual_examples), itertools.repeat(f_template))):
         
         if 'greedy' in f_template:
-            _n_total = _n_total * 10 # greedy will always generate same. So test on just one generation file, and multiply by # of seed used (in our case, 10)
+            _n_total = _n_total * args.number_of_seeds # greedy will always generate same. So test on just one generation file, and multiply by # of seed used
 
-        print(_n, _n_distinct, _n_total)
+        # print(_n, _n_distinct, _n_total)
         factual_res_dict[_n] = float(_n_distinct/_n_total)
 
-    with open(out_log_path, "a") as outfile:
+    f_gen_path = "{}/factual_{}".format(dir, f_template)
+    f_res_path = f_gen_path.replace(".jsonl", "_results.jsonl")
+    with open(f_res_path, 'a') as outfile:
+        res_obj = {}
         for n in [4,3,2]:
-            outfile.write(", {}".format(factual_res_dict[n]))
+            key_ = "factual-distinct-{}"format(n)
+            res_obj[key_] = factual_res_dict[n]
 
+        json.dump(res_obj, outfile)
+        outfile.write("\n")
+
+    # nonfactual prompts
     nonfactual_res_dict = {}
-    for (_n_distinct, _n_total, _n) in workers.imap_unordered(distinct_n_wrapper, zip([1,2,3,4], itertools.repeat(nonfactual_examples), itertools.repeat(f_template))):
+    for (_n_distinct, _n_total, _n) in workers.imap_unordered(distinct_n_wrapper, zip([2,3,4], itertools.repeat(nonfactual_examples), itertools.repeat(f_template))):
         
         if 'greedy' in f_template:
-            _n_total = _n_total * 10 # greedy will always generate same. So test on just one generation file, and multiply by # of seed used (in our case, 10)
+            _n_total = _n_total * args.number_of_seeds # greedy will always generate same. So test on just one generation file, and multiply by # of seed used
 
-        print(_n, _n_distinct, _n_total)
+        # print(_n, _n_distinct, _n_total)
         nonfactual_res_dict[_n] = float(_n_distinct/_n_total)
 
-    with open(out_log_path, "a") as outfile:
+    nf_gen_path = "{}/nonfactual_{}".format(dir, f_template)
+    nf_res_path = nf_gen_path.replace(".jsonl", "_results.jsonl")
+    with open(nf_res_path, 'a') as outfile:
+        res_obj = {}
         for n in [4,3,2]:
-            outfile.write(", {}".format(nonfactual_res_dict[n]))
-
-    with open(out_log_path, "a") as outfile:
+            key_ = "nonfactual-distinct-{}"format(n)
+            res_obj[key_] = nonfactual_res_dict[n]
+            
+        json.dump(res_obj, outfile)
         outfile.write("\n")
+        
+
 
 
 def distinct_n_wrapper(_args):
