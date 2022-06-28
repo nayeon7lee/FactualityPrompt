@@ -39,3 +39,12 @@ If you use our resource, please cite our work with the bibtex listed below:
 This script will create kilt_db.db into `data` directory. 
 
 ## 2. Run evaluation script
+
+
+## 3. Replicating our work with [Megatron-LM](https://github.com/NVIDIA/Megatron-LM)
+1. Factual Nucleus Decoding: provide link to the implementation in Megatron-LM repo
+2. How to 1) preprocess the training corpus, 2) incorporate SC-loss into Megatron-LM
+
+## 4. Proposed methodology implementation in [Hugginface (HF)](https://github.com/huggingface/transformers)
+1. Factual Nucleus Decoding with HF - https://github.com/huggingface/transformers/blob/main/examples/legacy/run_language_modeling.py 
+2. How to incorporate SC-loss into HF codebase
