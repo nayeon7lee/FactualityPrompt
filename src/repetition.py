@@ -1,17 +1,13 @@
-"""
-Usage:
-$ python metrics/repetition.py gen.jsonl
-When using
-$ python metrics/repetition.py gen.jsonl --output
-it will generate a repetition_gen.jsonl which contains detailed fields on how each
-example is repeating itself, specifically the phrase the generation is repeating
-and how many times it is repeated.
-"""
+'''
+    This code is adapted from https://github.com/ari-holtzman/degen/blob/master/metrics/repetition.py by Ari Holtzman.
+'''
 import argparse
 import json
 import os
 
 from transformers import GPT2Tokenizer
+
+from src.const import DATA_DIR, HOME_DIR, GEN_DIR
 
 
 def parse_args() -> argparse.Namespace:
@@ -32,8 +28,7 @@ def main():
     objs = []
     max_n = 90
 
-    gen_dir = '/gpfs/fs1/projects/gpu_adlr/outputs/nayeonl/generations'
-    args.file = "{}/{}".format(gen_dir, args.file)
+    args.file = "{}/{}".format(GEN_DIR, args.file)
     with open(args.file, 'r') as fin:
         for l in fin:
             objs.append(json.loads(l.strip()))
@@ -48,8 +43,6 @@ def main():
         if "WikiNamePrefix" in args.file:
             wikiPrefix = obj['prompt'].split(". ")[-1].strip()
             gen = gen.replace(wikiPrefix, " ")
-            # print(gen)
-            # print("\n\n")
 
         if gen[-1] == SEP:
             gen.pop(-1)

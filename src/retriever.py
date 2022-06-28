@@ -23,7 +23,7 @@ import torch
 import torch.nn.functional as F
 
 from src.const import DATA_DIR, HOME_DIR
-from fever_athene.src.retrieval.fever_doc_db import FeverDocDB
+# from fever_athene.src.retrieval.fever_doc_db import FeverDocDB
 
 #Mean Pooling - Take attention mask into account for correct averaging
 def mean_pooling(model_output, attention_mask):
@@ -200,15 +200,8 @@ def clean_wiki_sents(wiki_sents):
         filtered_wiki_sents.append(sent)
     return filtered_wiki_sents
 
-# TODO: roberta --> BERT, or other models. seems like roberta embedding is bad..
-# BERT_SCORER = datasets.load_metric("bertscore", model_type='/gpfs/fs1/projects/gpu_adlr/datasets/nayeonl/checkpoints/roberta-large')
-# pool_size = 15
-# top_15_evs = sorted(zip(wiki_sents, relevance_scores), key=lambda x: -x[1])[:pool_size]
-# claims = [claim] * pool_size
-# results = BERT_SCORER.compute(predictions=claims, references=top_15_evs, lang="en")
-# print([round(v, 2) for v in results["recall"]])
-# print('[BERT EVS]', sorted([(ev[0], recall) for ev, recall in zip(top_15_evs, results["recall"])], key=lambda x: -x[1])[:2])
-MODEL = SentenceTransformer(model_name_or_path='/gpfs/fs1/projects/gpu_adlr/datasets/nayeonl/checkpoints/all_mpnet_base_v2')
+
+MODEL = SentenceTransformer('all-MiniLM-L6-v2')
 def obtain_relevant_evidences(claim, wiki_sents, k, method):
 
     evs = []
@@ -234,7 +227,6 @@ def obtain_relevant_evidences(claim, wiki_sents, k, method):
         # print("\n")
 
         evs.extend([(wiki_sents[int(id_dict['corpus_id'])], id_dict['score']) for id_dict in hits[0]])
-        # evs = [] # TODO: TEMP
 
     return evs
 
@@ -244,7 +236,7 @@ def obtain_relevant_infobox(claim, infobox_candidates, k):
 
     return k_infobox_items
 
-DB = FeverDocDB(path = "/gpfs/fs1/projects/gpu_adlr/datasets/nayeonl/db/kilt_db.db")
+DB = FeverDocDB(path = "{}/data/kilt_db.db".format(HOME_DIR))
 def get_wiki_from_db(wiki_names):
     
     all_lines = []
@@ -258,20 +250,6 @@ def get_wiki_from_db(wiki_names):
 
 if __name__ == '__main__':
 
-    MODEL = SentenceTransformer(model_name_or_path='/gpfs/fs1/projects/gpu_adlr/datasets/nayeonl/checkpoints/all_mpnet_base_v2')
+    MODEL = SentenceTransformer('all-MiniLM-L6-v2')
 
     print("yay!")
-    # test = obtain_wiki_from_internet(['Armenian%20Genocide'])
-
-    # print(test[0])
-
-    # # wiki_doc_name = "Queen%20Latifah"
-    # # wiki_doc_name = "the%20Prince%20Charming%20String%20Band"
-    # wiki_doc_name = "Horse"
-
-    # wiki_url = "https://en.wikipedia.org/w/api.php?action=parse&page={}&prop=text&format=json".format(wiki_doc_name)
-
-    # html = _fetchUrl(wiki_url)
-    # bsobj = bs4.BeautifulSoup(html,'html.parser')
-
-    # print(bsobj.find_all(['p', 'h2', 'h3']))

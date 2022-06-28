@@ -19,10 +19,8 @@ from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
 
 from retriever import obtain_relevant_evidences, get_wiki_from_db
-from metric import nli_metric, ner_metric, nli_metric_batch
+from factuality_metric import nli_metric, ner_metric, nli_metric_batch
 
-# DATA_DIR = '/gpfs/fs1/projects/gpu_adlr/datasets/nayeonl'
-# HOME_DIR = '/home/nayeonl/megatron-lm/'
 from src.const import DATA_DIR, HOME_DIR, GEN_DIR
 from src.claim_handling import obtain_important_ne, has_incorrect_style
 
@@ -63,21 +61,11 @@ def identify_sentence_type(claim_obj, wiki_names_txt):
     
     return assigned_type
 
-def single_instance_eval(obj, prompt_wiki_names, run_nli_metric, run_ner_metric, test_og_fever=False, first_sentence_only=True, verbose=False):
+def single_instance_eval(obj, prompt_wiki_names, run_nli_metric, run_ner_metric, first_sentence_only=True, verbose=False):
 
     wiki_names_txt = " ".join(prompt_wiki_names)
 
-    if test_og_fever:
-        text = obj['prompt'].strip() # NOTE: for evaluating against FEVER claims -- for testing how good our metric is
-    else:
-        text = obj['text'].strip() # NOTE: OG code for testing the generation
-
-    do_MixedDecoding = True
-    if do_MixedDecoding:
-        prompts_with_suffix = obj['prompt'].strip() # NOTE: for evaluating against FEVER claims -- for testing how good our metric is
-        _text = obj['text'].strip()
-
-        text = prompts_with_suffix.split(".")[1].strip() + " " + _text
+    text = obj['text'].strip()
 
     sent_type, claim_to_verify = "NO_GEN", ""
     hallu_ner_ratio = None
@@ -108,31 +96,13 @@ def single_instance_eval(obj, prompt_wiki_names, run_nli_metric, run_ner_metric,
 
             if run_ner_metric:
 
-                ## think if we need to include this "ignore target wiki ne" logic. in our new setup, might be the same.
-
-                # ignore_target_wiki_ne = True
-                # if ignore_target_wiki_ne:
-                #     NE_to_check = first_sent_obj_with_ne['unimportant_ne']
-
-                #     # filter out the target Wiki's NE (cuz, theoretically, all sentences will contain this NE. so meaningless)
-                #     extra_ne = [ne[0] for ne in NE_to_check if ne[0] not in wiki_names_txt]
-
-                #     for ent in first_sent_obj_with_ne['important_ne']:
-                #         if any([bool(word in wiki_names_txt) for word in ent[0].split(" ")]):
-                #             continue
-                #         else:
-                #             NE_to_check.append(ent)
-                            
-                #     if len(NE_to_check) == 0: # ignore samples with 0 extra NE
-                #         return gen_type_cnts, None
-                # else:
                 NE_to_check = first_sent_obj_with_ne['important_ne'] + first_sent_obj_with_ne['unimportant_ne']
 
                 correct_ner_ratio = ner_metric(NE_to_check, wiki_sentences) # apply directly on wiki
                 
                 hallu_ner_ratio = 1 - correct_ner_ratio
 
-            if run_nli_metric: ## logic = if there exists any strong entail or refute, then neutral should not be selected for our final scoring
+            if run_nli_metric: 
                 
                 # # identify the evs that give highest nli entailment score
                 premise_hypothesis_pairs = [[ev[0], claim_to_verify] for ev in evs]
@@ -143,14 +113,7 @@ def single_instance_eval(obj, prompt_wiki_names, run_nli_metric, run_ner_metric,
                 max_label = labels[entailment_argmax]
                 used_ev = evs[entailment_argmax]
 
-                # if max_label != 2: 
-                #     # if label != entailment
-                #     # then try finding the max contradiction 
-                #     # why? we want to avoid "neutral"
-                #     contradict_argmax = np.argmax([nli_s[0] for nli_s in nli_probs])
-                #     max_prob = nli_probs[contradict_argmax]
-                #     max_label = labels[contradict_argmax]
-
+        
                 # print(max_prob, max_label)
                 nli_contradict_prob = max_prob[0] 
                 nli_neutral_prob = max_prob[1] 
@@ -158,14 +121,6 @@ def single_instance_eval(obj, prompt_wiki_names, run_nli_metric, run_ner_metric,
 
                 nli_label = max_label
 
-                
-            # print("[WIKI_NAME] ", prompt_wiki_names)
-            # print("[LM GEN] ", claim_to_verify)
-            # print("[ALL EVIDENCE] ", evs)
-            # print("[SELECTED EVIDENCE] ", evs[max_entailment_res['selected_ev_idx']])
-            # print("[NLI] Contradict: {}, Neutral: {}, Entail: {}".format(nli_contradict_prob, nli_neutral_prob, nli_entail_prob))
-            
-            # exit(0)
 
 
     eval_result_obj = {
@@ -186,7 +141,6 @@ def single_instance_eval(obj, prompt_wiki_names, run_nli_metric, run_ner_metric,
 
 def main(args):
 
-    model_size = args.model_size #'1.3b'
     prompt_type = args.prompt_type # 'factual' 
 
     run_nli_metric = True
@@ -236,7 +190,7 @@ def main(args):
 
         prompt_wiki_names = [ev_infos[0] for ev_infos in prompt_obj['evidence_info']]
         
-        res_obj = single_instance_eval(gen_obj, prompt_wiki_names, run_nli_metric, run_ner_metric, args.test_og_fever)
+        res_obj = single_instance_eval(gen_obj, prompt_wiki_names, run_nli_metric, run_ner_metric)
 
         if res_obj['claim_type'] == TYPES['NO_FACT']:
             no_fact_cnt += 1
@@ -283,9 +237,6 @@ def main(args):
     # analysis
     if args.save_gen_for_analysis:
         analysis_save_path = gen_path.replace(".jsonl", "_allGen.csv")
-        if args.test_og_fever:
-            analysis_save_path = analysis_save_path + "_feverOg"
-            # analysis_save_path = analysis_save_path.split("/")[-1] +"_feverOg"
         
         df = pd.DataFrame(all_analysis_list)
         df.to_csv(analysis_save_path)
@@ -323,15 +274,6 @@ def main(args):
             nli_entail_class_ratio*100
         ))
 
-    # # to write
-    # write_str = ",".join(map(str, [avg_hallu_ner_ratio, 
-    #                     nli_contradict_class_ratio, nli_neutral_class_ratio, nli_entail_class_ratio,
-    #                     no_fact_ratio, has_fact_ratio, off_topic_ratio
-    #                     ]))
-    
-    # with open('eval_v3_res.log', 'a') as outfile:
-    #     outfile.write("{},{}\n".format(gen_path, write_str))
-
 
     res_path = gen_path.replace(".jsonl", "_results.jsonl")
     with open(res_path, 'a') as outfile:
@@ -351,12 +293,10 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--prompt_type', type=str, help='name of prompt type of the testset [factual, nonfactual]')
-    parser.add_argument('--model_size', type=str, default='1.3b', help='LM model size')
     parser.add_argument('--exp_name', type=str, default='', help='experiment name for different generation techniques') 
     parser.add_argument('--debug_sample_size', type=int, default=None, help='# of sample size to use for debugging purpose. providing this value will automatically lead to debug mode')
     parser.add_argument('--gen_path', type=str, default=None, help='path to generations to evaluate') 
 
-    parser.add_argument('--test_og_fever', action='store_true', help='Evaluate fever claims with label') 
     parser.add_argument('--save_gen_for_analysis', action='store_true', help='Flag for saving some lm-gens with its metric for analysis') 
 
 

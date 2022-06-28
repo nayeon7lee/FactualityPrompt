@@ -1,3 +1,6 @@
+'''
+    This code is adapted from https://github.com/ari-holtzman/degen/blob/master/metrics/distinct_n.py by Ali Holtzman.
+'''
 import argparse
 import json
 import os
@@ -13,8 +16,6 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 import multiprocessing
 import itertools
 import numpy as np
-
-# from fever_athene.src.retrieval.fever_doc_db import FeverDocDB
 
 logger = logging.getLogger(__name__)
 
@@ -48,16 +49,6 @@ def wiki_distinct_n(n, factual_examples):
             gen_tokens = word_tokenize(example.strip())
             for token in zip(*(gen_tokens[i:] for i in range(n))):
                 distinct_set.add(token)
-                # print("if", token)
-                # if token not in counter:
-                #     n_distinct += 1
-                #     print("if", token)
-                # elif counter[token] == 1:
-                #     n_distinct -= 1
-                #     print("elif", token)
-                # else:
-                #     print("enter 'else'")
-                # counter[token] += 1
                 n_total += 1
 
     return len(distinct_set), n_total, n
@@ -85,52 +76,10 @@ def distinct_n(n, factual_examples, f_name_template):
             gen_tokens = word_tokenize(gen)
             for token in zip(*(gen_tokens[i:] for i in range(n))):
                 distinct_set.add(token)
-                # print("if", token)
-                # if token not in counter:
-                #     n_distinct += 1
-                #     print("if", token)
-                # elif counter[token] == 1:
-                #     n_distinct -= 1
-                #     print("elif", token)
-                # else:
-                #     print("enter 'else'")
-                # counter[token] += 1
                 n_total += 1
 
     return len(distinct_set), n_total, n
 
-
-# def mp_distinct_n(factual_examples, n, f_name_template):
-#     counter = Counter()
-#     n_total = 0
-#     n_distinct = 0
-
-#     p = multiprocessing.Pool() # use all available thread
-#     p.map(_helper, factual_examples)
-
-#     def _helper(example):
-#         if example['text'].strip() != "":
-#             use_first_sent_only=True
-#             if use_first_sent_only:
-#                 gen = sent_tokenize(example['text'])[0] 
-#             else:
-#                 gen = example['text']
-
-#             if "WikiNamePrefix" in f_name_template:
-#                 wikiPrefix = example['prompt'].split(". ")[-1].strip()
-#                 gen = gen.replace(wikiPrefix, " ")
-
-#             gen_tokens = word_tokenize(gen)
-#             for token in zip(*(gen_tokens[i:] for i in range(n))):
-                
-#                 if token not in counter:
-#                     n_distinct += 1
-#                 elif counter[token] == 1:
-#                     n_distinct -= 1
-#                 counter[token] += 1
-#                 n_total += 1
-
-#     return n_distinct, n_total
 
 
 def main():
@@ -201,7 +150,7 @@ def main():
         for n in [4,3,2]:
             key_ = "nonfactual-distinct-{}"format(n)
             res_obj[key_] = nonfactual_res_dict[n]
-            
+
         json.dump(res_obj, outfile)
         outfile.write("\n")
         
@@ -214,56 +163,6 @@ def distinct_n_wrapper(_args):
 def wiki_distinct_n_wrapper(_args):
     return wiki_distinct_n(*_args)
 
-# def main_wiki_pages():
-    
-#     wiki_page_examples = []
-
-#     DB = FeverDocDB(path = "/gpfs/fs1/projects/gpu_adlr/datasets/nayeonl/db/kilt_db.db")
-
-#     with open('/home/nayeonl/megatron-lm/fever_dev_wiki_names.txt') as fever_infile:
-#         fever_dev_wiki_names = set(fever_infile.readlines())
-
-#     with open('/home/nayeonl/megatron-lm/fever_train_wiki_names.txt') as fever_infile:
-#         fever_dev_wiki_names.update(set(fever_infile.readlines()))
-
-#         for idx, wiki in tqdm(enumerate(fever_dev_wiki_names), total=len(fever_dev_wiki_names)):
-#             wiki_name = wiki.replace("\n","")
-#             lines = sent_tokenize(DB.get_doc_lines(wiki_name).replace("\n", " "))
-#             wiki_page_examples.extend(lines)
-
-#             if idx == 5000:
-#                 break
-
-
-#     print("wiki sent cnt", len(wiki_page_examples), "wiki doc #", len(fever_dev_wiki_names))
-#     workers = multiprocessing.Pool(4)
-
-#     factual_res_dict = {}
-#     for (_n_distinct, _n_total, _n) in workers.imap_unordered(wiki_distinct_n_wrapper, zip([1,2,3,4], itertools.repeat(wiki_page_examples))):
-        
-#         # print(_n, _n_distinct, _n_total)
-#         factual_res_dict[_n] = float(_n_distinct/_n_total)
-
-#     for n in [4,3,2]:
-#         print(", {}".format(factual_res_dict[n]))
-
-
 if __name__ == '__main__':
     main()
-    # main_wiki_pages()
-
-    # n_distinct, n_total = distinct_n(factual_examples[:1000], 2, f_template)
-
-    # workers = multiprocessing.Pool() # use all available thread
-
-    # n_distinct_2, n_total_2= 0, 0
-    # factual_examples_chunks = [chunk_np.tolist() for chunk_np in np.array_split(factual_examples[:1000], 20)]
-
-    # for (_n_distinct, _n_total) in workers.imap_unordered(distinct_n_wrapper, zip(factual_examples_chunks,itertools.repeat(2), itertools.repeat(f_template))):
-    #     n_distinct_2 += _n_distinct
-    #     n_total_2 += _n_total
-
-    # print(n_distinct, n_total)
-    # print(n_distinct_2, n_total_2)
-
 

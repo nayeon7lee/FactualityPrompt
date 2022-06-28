@@ -103,12 +103,6 @@ def obtain_trust_worthy_sents(text, wiki_names):
             checkworthy_gens.append(sent_obj)
             # print('[CHECK-WORTHY]', sent_obj['gen'])
         
-        # # case 2 v2: no off-topic (i.e., talks about target wiki NE), but contains facts (unimportant_ne) about target-topic
-        # elif len(set(" ".join([obj[0] for obj in sent_obj['important_ne']]).split(" ")).intersection(set(wiki_names_txt.split(" ")))) > 0:
-        #     checkworthy_gen_cnt += 1
-        #     checkworthy_gens.append(sent_obj)
-        #     print('[CHECK-WORTHY]', sent_obj['gen'])
-        
         # case 3: tricky scenario. important_ne could be relevant to the target-topic, or could indicate off-topic
         else:
             

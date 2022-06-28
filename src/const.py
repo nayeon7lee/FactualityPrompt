@@ -1,3 +1,3 @@
-DATA_DIR = '/gpfs/fs1/projects/gpu_adlr/datasets/nayeonl'
-GEN_DIR = '/gpfs/fs1/projects/gpu_adlr/outputs/nayeonl/generations'
-HOME_DIR = '/home/nayeonl/megatron-lm/'
+DATA_DIR = # absolute path to data directory
+GEN_DIR = # absolute path to generations save directory
+HOME_DIR = # absolute path to this project directory

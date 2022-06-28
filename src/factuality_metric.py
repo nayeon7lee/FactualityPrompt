@@ -3,7 +3,6 @@ from fairseq.data.data_utils import collate_tokens
 import numpy as np
 import re
 
-# torch.hub.set_dir('/gpfs/fs1/projects/gpu_adlr/datasets/nayeonl/checkpoints/hub')
 NLI_MODEL = torch.hub.load('pytorch/fairseq', 'roberta.large.mnli')
 NLI_MODEL.eval()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
