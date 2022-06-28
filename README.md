@@ -77,11 +77,6 @@ Illustration of `FILE_TEMPLATE`:
 * Let's assume your generation files are named as follows: factual_gen_seed1.jsonl, nonfactual_gen_seed1.jsonl, factual_gen_seed2.jsonl, nonfactual_gen_seed2.jsonl,...
 * Then, your `FILE_TEMPLATE` will be "gen_seed"
 
-#### Fluency (Perplexity)
-
-```
-  TODO
-```
 
 ## 3. Replicating our work with [Megatron-LM](https://github.com/NVIDIA/Megatron-LM)
 1. Factual Nucleus Decoding: provide link to the implementation in Megatron-LM repo
