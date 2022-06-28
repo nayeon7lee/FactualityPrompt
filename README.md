@@ -63,16 +63,19 @@ done
 
 #### Diversity
 
+1. First obtain multiple generation files from your LM with different seed. In our paper, we used 10 random seeds, but you can use your own choice of seed count.**If you are evaluating greedy, there is NO NEED to generate multiple seed, because all seed will result in same generation. Simply use 1 generation file.**
+
+2. Then run the below script:
 ```
-GEN_DIR=/gpfs/fs1/projects/gpu_adlr/outputs/nayeonl/generations/t2_diversity
+GEN_DIR=directory-containing-multi-seed-generation-files
 
 FILE_TEMPLATE=shared-string-between-multiple-seed-generation
-python metrics/distinct_n.py --gen_dir ${GEN_DIR} --file_template ${FILE_TEMPLATE}
+python metrics/distinct_n.py --gen_dir ${GEN_DIR} --file_template ${FILE_TEMPLATE} --number_of_seeds 10
 ```
 
-**TODO1: illustrate FILE_TEMPLATE with example**
-
-**TODO2: refactor code to remove gen_dir**
+Illustration of `FILE_TEMPLATE`:
+* Let's assume your generation files are named as follows: factual_gen_seed1.jsonl, nonfactual_gen_seed1.jsonl, factual_gen_seed2.jsonl, nonfactual_gen_seed2.jsonl,...
+* Then, your `FILE_TEMPLATE` will be "gen_seed"
 
 #### Fluency (Perplexity)
 
