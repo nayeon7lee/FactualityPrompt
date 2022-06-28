@@ -39,7 +39,46 @@ If you use our resource, please cite our work with the bibtex listed below:
 This script will create kilt_db.db into `data` directory. 
 
 ## 2. Run evaluation script
+Running any of the scripts below will save corresponding metric results into a file named `$GEN_TO_EVALUATE_NAME_results.jsonl` (`$GEN_TO_EVALUATE_NAME` refers to the file containing generations that you are trying to evaluate).
 
+#### Factuality Metric (Hallucinated NE Error, Entailment Ratio)
+
+```
+for PROMPT_TYPE in factual nonfactual
+do
+    GEN_TO_EVALUATE_NAME=${PROMPT_TYPE}-CUSTOM-GEN-NAME.jsonl
+    PYTHONPATH=. python src/evaluate_v3_final.py --prompt_type ${PROMPT_TYPE} --gen_path ${GEN_TO_EVALUATE_NAME}
+done
+```
+
+#### Repetition
+
+```
+for PROMPT_TYPE in factual nonfactual
+do
+    GEN_TO_EVALUATE_NAME=${PROMPT_TYPE}-CUSTOM-GEN-NAME.jsonl
+    python metrics/repetition.py ${GEN_TO_EVALUATE_NAME}  --final
+done
+``` 
+
+#### Diversity
+
+```
+GEN_DIR=/gpfs/fs1/projects/gpu_adlr/outputs/nayeonl/generations/t2_diversity
+
+FILE_TEMPLATE=shared-string-between-multiple-seed-generation
+python metrics/distinct_n.py --gen_dir ${GEN_DIR} --file_template ${FILE_TEMPLATE}
+```
+
+**TODO1: illustrate FILE_TEMPLATE with example**
+
+**TODO2: refactor code to remove gen_dir**
+
+#### Fluency (Perplexity)
+
+```
+  TODO
+```
 
 ## 3. Replicating our work with [Megatron-LM](https://github.com/NVIDIA/Megatron-LM)
 1. Factual Nucleus Decoding: provide link to the implementation in Megatron-LM repo
