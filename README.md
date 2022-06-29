@@ -155,5 +155,4 @@ def get_batch(data_iterator):
 * Note that: since publicly available Megatron-LM checkpoint (345M) is smaller than the models used in our paper, same performance won't be replicated.
 
 ## 4. Replicating our work with [Hugginface](https://github.com/huggingface/transformers) (v4.20.1)
-1. Factual Nucleus Decoding with HF - https://github.com/huggingface/transformers/blob/main/examples/legacy/run_language_modeling.py 
-2. How to incorporate SC-loss into HF codebase
+Please refer to this repository -> <https://github.com/nayeon7lee/factuality_enhanced_lm_hf>.
