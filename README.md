@@ -25,7 +25,7 @@ If you use our resource, please cite our work with the bibtex listed below:
 ## Code Overview
 * `fever_athene`: contains fact-checking pipeline code (Wiki document retriever, Wiki sentence selector, etc) from UKPLab/fever-2018-team-athene [github](UKPLab/fever-2018-team-athene). We utilize and build on top of their Wiki document retriever in our work. (Refer to their github for citation details)
 * `prompts`: contains our FactualityPrompt testset utilized in our paper.
-* `src`: our code for evaluating the factualtiy of LM generation.
+* `src`: codes for evaluating the factualtiy of LM generation (For files adapted from other publicly available codebases, we included the pointer to the original code file)
 
 ## 1. Setup 
 1. Install dependencies by running `pip install -r requirements.txt`
@@ -154,6 +154,6 @@ def get_batch(data_iterator):
 * Set `DATA_PATH` to the preprocessed files generated from Step 1.
 * Note that: since publicly available Megatron-LM checkpoint (345M) is smaller than the models used in our paper, same performance won't be replicated.
 
-## 4. Proposed methodology implementation in [Hugginface (HF)](https://github.com/huggingface/transformers)
+## 4. Replicating our work with [Hugginface](https://github.com/huggingface/transformers) (v4.20.1)
 1. Factual Nucleus Decoding with HF - https://github.com/huggingface/transformers/blob/main/examples/legacy/run_language_modeling.py 
 2. How to incorporate SC-loss into HF codebase
