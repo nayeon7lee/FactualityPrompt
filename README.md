@@ -9,7 +9,7 @@ This work was done during Nayeon Lee's internship at NVIDIA.
 <!-- <img align="right" src="img/HKUST.jpg" width="12%"> -->
 
 If you use our resource, please cite our work with the bibtex listed below:
-<pre>
+```bibtex
 @misc{https://doi.org/10.48550/arxiv.2206.04624,
   doi = {10.48550/ARXIV.2206.04624},
   url = {https://arxiv.org/abs/2206.04624},
@@ -20,7 +20,7 @@ If you use our resource, please cite our work with the bibtex listed below:
   year = {2022},  
   copyright = {Creative Commons Attribution 4.0 International}
 }
-</pre>
+```
 
 ## Code Overview
 * `fever_athene`: contains fact-checking pipeline code (Wiki document retriever, Wiki sentence selector, etc) from UKPLab/fever-2018-team-athene [github](UKPLab/fever-2018-team-athene). We utilize and build on top of their Wiki document retriever in our work. (Refer to their github for citation details)
