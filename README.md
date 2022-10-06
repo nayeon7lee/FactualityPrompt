@@ -86,7 +86,7 @@ Illustration of `FILE_TEMPLATE`:
 
 ## 3. Replicating our work with [Megatron-LM](https://github.com/NVIDIA/Megatron-LM) (Note: we used v3.0.2)
 #### Factual Nucleus Decoding
-Refer to this [link](www.google.com) for nucleus sampling implementation in Megatron-LM repository.
+Refer to this [link](https://github.com/NVIDIA/Megatron-LM/blob/main/megatron/text_generation/generation.py#L207) for nucleus sampling implementation in Megatron-LM repository.
 
 #### Sentence Completition Loss
 **Step 1. Prepare the training corpus:**
